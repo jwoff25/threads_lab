@@ -30,7 +30,7 @@ int main (int argc, char **argv){
 	//allocate space for buffer
 	buffer = (int*)calloc(BUF_SIZE,sizeof(int));
 	
-	//initialize semaphore
+	//initialize semaphores
 	if (sem_init(&s,0,1) < 0){
 		printf("%s\n", "Error initializing semaphore.");
 		return 0;
@@ -49,12 +49,12 @@ int main (int argc, char **argv){
 	long i;
 	for (i = 0; i < num_threads; i++){
 		if (i % 2 == 0){
-			if (pcr = pthread_create(&threads[i],NULL,&consumer,(void*)i)) {
+			if (pcr = pthread_create(&threads[i],NULL,&producer,(void*)i)) {
 				printf("%s\n", "Create failed.");
 			}
 		}
 		else {
-			if (pcr = pthread_create(&threads[i],NULL,&producer,(void*)i)) {
+			if (pcr = pthread_create(&threads[i],NULL,&consumer,(void*)i)) {
 				printf("%s\n", "Create failed.");
 			}
 		}
@@ -78,10 +78,10 @@ void *consumer(void *arg){
 		sem_wait(&n);
 		sem_wait(&s);
 		int t = take();
+		printf("PID %d reporting in. ", id);
+		printf("I consumed: %d\n", t);
 		sem_post(&s);
 		sem_post(&e);
-		printf("PID: %d reporting in. ", id);
-		printf("I consumed: %d\n", t);
 	}
 
 }
