@@ -2,14 +2,24 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <semaphore.h>
+#include <stdint.h>
+
+#define BUF_SIZE 3
+#define LOOP_COUNT 20
 
 //consumer/producer function
 void *consumer(void*);
 void *producer(void*);
+void append(int);
+int take();
 
 //create semaphore
-sem_t lock;
+sem_t s;
+sem_t n;
+sem_t e;
+
 int *buffer;
+int buffer_p = 0;
 
 int main (int argc, char **argv){
 	int num_threads = atoi(argv[1]);
@@ -18,10 +28,18 @@ int main (int argc, char **argv){
 	//allocate space for thread array
 	threads =  (pthread_t*)calloc(num_threads,sizeof(pthread_t));
 	//allocate space for buffer
-	buffer = (int*)calloc(3,sizeof(int));
+	buffer = (int*)calloc(BUF_SIZE,sizeof(int));
 	
 	//initialize semaphore
-	if (sem_init(&lock,0,1) < 0){
+	if (sem_init(&s,0,1) < 0){
+		printf("%s\n", "Error initializing semaphore.");
+		return 0;
+	}
+	if (sem_init(&n,0,0) < 0){
+		printf("%s\n", "Error initializing semaphore.");
+		return 0;
+	}
+	if (sem_init(&e,0,BUF_SIZE) < 0){
 		printf("%s\n", "Error initializing semaphore.");
 		return 0;
 	}
@@ -49,19 +67,47 @@ int main (int argc, char **argv){
 	free(threads);
 	
 	//destroy that semaphore
-	sem_destroy(&lock);
+	sem_destroy(&s);
 	
 	return 0;
 }
 
 void *consumer(void *arg){
-	int id = (int)arg;
-	printf("PID: %d reporting in.\n", id);
-	printf("%s\n", "I am a consumer.");
+	int id = (uintptr_t)arg;
+	for (int i = 0; i < LOOP_COUNT; i++){
+		sem_wait(&n);
+		sem_wait(&s);
+		int t = take();
+		sem_post(&s);
+		sem_post(&e);
+		printf("PID: %d reporting in. ", id);
+		printf("I consumed: %d\n", t);
+	}
+
 }
 
 void *producer(void *arg){
-	int id = (int)arg;
-	printf("PID: %d reporting in.\n", id);
-	printf("%s\n", "I am a producer.");
+	int id = (uintptr_t)arg;
+	for (int i = 0; i < LOOP_COUNT; i++){
+		//produce
+		int produce = rand() % 20;
+		printf("PID %d reporting in. ", id);
+		printf("I produced: %d\n", produce);
+		sem_wait(&e);
+		sem_wait(&s);
+		append(produce);
+		sem_post(&s);
+		sem_post(&n);
+	}
+}
+
+void append(int a){
+	if (buffer_p < BUF_SIZE){
+		buffer[buffer_p++] = a;
+	}
+}
+
+int take(){
+	int t = buffer[--buffer_p];
+	return t;
 }

@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <semaphore.h>
+#include <stdint.h>
 
 void *consumer(void*);
 void *producer(void*);
@@ -39,13 +40,13 @@ int main (int argc, char **argv){
 }
 
 void *consumer(void *arg){
-	int id = (int)arg;
-	printf("PID: %d reporting in.\n", id);
+	int id = (uintptr_t)arg;
+	printf("PID %d reporting in: ", id);
 	printf("%s\n", "I am a consumer.");
 }
 
 void *producer(void *arg){
-	int id = (int)arg;
-	printf("PID: %d reporting in.\n", id);
+	int id = (uintptr_t)arg;
+	printf("PID %d reporting in: ", id);
 	printf("%s\n", "I am a producer.");
 }

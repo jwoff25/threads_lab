@@ -2,6 +2,8 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <semaphore.h>
+#include <stdint.h>
+#include <unistd.h>
 
 //declare functions
 void *job1(void*);
@@ -60,7 +62,7 @@ int main (int argc, char **argv){
 }
 
 void *job1(void *arg){
-	int id = (int)arg;
+	int id = (uintptr_t)arg;
 	printf("PID: %d reporting in. Executing job 1!\n", id);
 	//doing the addition for job 1
 	for (int i = 0; i < 5; i++){
@@ -75,7 +77,7 @@ void *job1(void *arg){
 }
 
 void *job2(void *arg){
-	int id = (int)arg;
+	int id = (uintptr_t)arg;
 	printf("PID: %d reporting in. Executing job 2!\n", id);
 	//doing the addition for job 2
 	for (int i = 0; i < 5; i++){
