@@ -68,6 +68,8 @@ int main (int argc, char **argv){
 	
 	//destroy that semaphore
 	sem_destroy(&s);
+	sem_destroy(&n);
+	sem_destroy(&e);
 	
 	return 0;
 }
