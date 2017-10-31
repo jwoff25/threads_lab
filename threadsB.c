@@ -69,7 +69,6 @@ int main (int argc, char **argv){
 
 void *job1(void *arg){
 	int id = (uintptr_t)arg;
-	printf("PID: %d reporting in. Executing job 1!\n", id);
 	//doing the addition for job 1
 	for (int i = 0; i < 5; i++){
 		//do i need to do two sem_waits? or just one?
@@ -86,7 +85,6 @@ void *job1(void *arg){
 
 void *job2(void *arg){
 	int id = (uintptr_t)arg;
-	printf("PID: %d reporting in. Executing job 2!\n", id);
 	//doing the addition for job 2
 	for (int i = 0; i < 5; i++){
 		sem_wait(&b_lock);
